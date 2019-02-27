@@ -2,6 +2,10 @@
 #include <string.h>
 #include <assert.h>
 
+
+static int hook = 0;
+
+
 int regex(char* string1, char* string2)
 {
     switch (*string2)
@@ -32,6 +36,7 @@ int regex(char* string1, char* string2)
                 
             }
             // not ok, we stop
+            hook=0;
             return 0;
             break;
 
@@ -41,30 +46,48 @@ int regex(char* string1, char* string2)
             // getting the char before the multiplier as a separate string
             char* to_compare = strdup(string2-1);
             // getting the char to be compared (will move) as a separate string
-            char* compared_to = strdup(string1);
+            char* compared_to = strdup(string1-1);
             to_compare[1] = '\0';
             compared_to[1] = '\0';
-            while (strlen(string1)>1 && *(string2+1) != *(string1+1)) // until we can exit the '*'. 
+            while (strlen(string1)>1 && *(string2+1) != *(string1+1) &&  regex(compared_to, to_compare) == 1) // until we can exit the '*'. 
             // For now we will exit the multiplier as soon as the regex can continue or if the string is over
             {
-                if (regex(compared_to, to_compare) != 1) return 0;// check the regex between the char before * and the string1
+                /*if (regex(compared_to, to_compare) != 1) 
+                {
+                    hook=0;
+                    return 0;// check the regex between the char before * and the string1
+                }*/
                 string1++; 
                 compared_to = strdup(string1);
                 compared_to[1] = '\0';
             }
-            return regex(string1, string2+1);
+            hook=0; // reset hook
+            if (strlen(string2)>1)
+                return regex(string1-1, string2+1);
+            return 1;
             break;
     }
-    if (strlen(string1)>1 && strlen(string2)>1 && *string1==*string2)
+    if (strlen(string1)>1 && strlen(string2)>1 && *string1==*string2) {
+            hook=1;
             return regex((string1+1),(string2+1));
+        }
         else if (*string1==*string2)
             return 1;
-        else if (strlen(string1) == 1)
+        else if (strlen(string1) == 1){
+            hook=0;
             return 0;
-        else
+        }
+        else if (hook == 0)
             return regex((string1+1),(string2));
-
+    hook=0;
     return 0;
+}
+
+int regex_wrap(char* string1, char* string2)
+{
+    int result = regex(string1, string2);
+    hook = 0;
+    return result;
 }
 
 int main(int  argc, char* argv[])
@@ -73,41 +96,42 @@ int main(int  argc, char* argv[])
     printf("\n\nBEGIN TEST\n\n");
     printf("NO SPECIAL CHAR TESTS\n");
     
-    assert(regex(tested_string,"abcdef") == 1);
-    assert(regex(tested_string,"def") == 1);
-    assert(regex(tested_string,"ghij") == 1);
-    assert(regex(tested_string,"k") == 1);
+    assert(regex_wrap(tested_string,"abcdef") == 1);
+    assert(regex_wrap(tested_string,"def") == 1);
+    assert(regex_wrap(tested_string,"ghij") == 1);
+    assert(regex_wrap(tested_string,"k") == 1);
 
-    assert(regex(tested_string,"r") == 0);
-    assert(regex(tested_string,"abcef") == 0);
-    assert(regex(tested_string,"NOP") == 0);
-    assert(regex(tested_string,"deff") == 0);
+    assert(regex_wrap(tested_string,"r") == 0);
+    assert(regex_wrap(tested_string,"abcef") == 0);
+    assert(regex_wrap(tested_string,"NOP") == 0);
+    assert(regex_wrap(tested_string,"deff") == 0);
     
     printf("SPECIAL CHAR  : .\n");
 
-    assert(regex(tested_string,"ab.def") == 1);
-    assert(regex(tested_string,"de.") == 1);
-    assert(regex(tested_string,".hij") == 1);
-    assert(regex(tested_string,".") == 1);
+    assert(regex_wrap(tested_string,"ab.def") == 1);
+    assert(regex_wrap(tested_string,"de.") == 1);
+    assert(regex_wrap(tested_string,".hij") == 1);
+    assert(regex_wrap(tested_string,".") == 1);
 
-    assert(regex(tested_string,"ne.u") == 0);
-    assert(regex(tested_string,"a.ef") == 0);
-    assert(regex(tested_string,"..aaa") == 0);
-    assert(regex(tested_string,"ab.c") == 0);
+    assert(regex_wrap(tested_string,"ne.u") == 0);
+    assert(regex_wrap(tested_string,"a.ef") == 0);
+    assert(regex_wrap(tested_string,"..aaa") == 0);
+    assert(regex_wrap(tested_string,"ab.c") == 0);
 
     printf("SPECIAL CHAR  : *\n");
 
-    assert(regex(tested_string,"ab.*f") == 1);
-    assert(regex(tested_string,"de*") == 1);
-    assert(regex(tested_string,".*hij") == 1);
-    assert(regex(tested_string,"abc*def") == 1);
+    assert(regex_wrap(tested_string,"ab.*f") == 1);
+    assert(regex_wrap(tested_string,"de*") == 1);
+    assert(regex_wrap(tested_string,".*hij") == 1);
+    assert(regex_wrap(tested_string,"abc*def") == 1);
 
-    assert(regex(tested_string,"*abc") == -1);
-    assert(regex(tested_string,".*abc") == 0);
-    assert(regex(tested_string,"a*aa") == 0);
-    assert(regex(tested_string,"ijk*") == 0);
+    assert(regex_wrap(tested_string,"*abc") == -1);
+
+    assert(regex_wrap(tested_string,".*abc") == 0);
+    assert(regex_wrap(tested_string,"a*aa") == 0);
+    assert(regex_wrap(tested_string,"ijkk*") == 0);
 
     printf("SPECIAL CHARs : []\n");
 
-    assert(regex("bonjour", "b[oau]njour") == 1);
+    assert(regex_wrap("bonjour", "b[oau]njour") == 1);
 }
