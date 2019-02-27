@@ -32,7 +32,11 @@ int regex(char* string1, char* string2)
                             (*(possible_chars+i) == '-'  // Interval
                             && *string1 > *(possible_chars+i-1) 
                             && *string1 < *(possible_chars+i+1)))
-                    return regex(string1+1, string2+1); // ok! continue
+                    {   
+                        if (strlen(string2) == 1)
+                            return 1;
+                        return regex(string1+1, string2+1); // ok! continue
+                    } 
                 
             }
             // not ok, we stop
@@ -71,7 +75,7 @@ int regex(char* string1, char* string2)
             hook=1;
             return regex((string1+1),(string2+1));
         }
-        else if (*string1==*string2)
+        else if (*string1==*string2 && strlen(string2) == 1)
             return 1;
         else if (strlen(string1) == 1){
             hook=0;
@@ -106,6 +110,8 @@ int main(int  argc, char* argv[])
     assert(regex_wrap(tested_string,"NOP") == 0);
     assert(regex_wrap(tested_string,"deff") == 0);
     
+    printf("TESTS PASSED  \n");
+
     printf("SPECIAL CHAR  : .\n");
 
     assert(regex_wrap(tested_string,"ab.def") == 1);
@@ -118,6 +124,8 @@ int main(int  argc, char* argv[])
     assert(regex_wrap(tested_string,"..aaa") == 0);
     assert(regex_wrap(tested_string,"ab.c") == 0);
 
+    printf("TESTS PASSED  \n");
+
     printf("SPECIAL CHAR  : *\n");
 
     assert(regex_wrap(tested_string,"ab.*f") == 1);
@@ -129,9 +137,36 @@ int main(int  argc, char* argv[])
 
     assert(regex_wrap(tested_string,".*abc") == 0);
     assert(regex_wrap(tested_string,"a*aa") == 0);
-    assert(regex_wrap(tested_string,"ijkk*") == 0);
+    assert(regex_wrap(tested_string,"ijkkk*") == 0);
+
+    printf("TESTS PASSED  \n");
 
     printf("SPECIAL CHARs : []\n");
 
-    assert(regex_wrap("bonjour", "b[oau]njour") == 1);
+    assert(regex_wrap(tested_string, "ab[ca]defghijk") == 1);
+    assert(regex_wrap(tested_string, "[aA]bcdef") == 1);
+    assert(regex_wrap(tested_string, "abcde[fFaor]") == 1);
+    assert(regex_wrap(tested_string, "ab[cC]de[fFaor]") == 1);
+
+
+    assert(regex_wrap(tested_string, "ab[ab]defghijk") == 0);
+    assert(regex_wrap(tested_string, "[Bb]bcdef") == 0);
+    assert(regex_wrap(tested_string, "abcde[aor]") == 0);
+    assert(regex_wrap(tested_string, "ab[OO]de[fFaor]") == 0);
+
+
+    printf("SPECIAL CHARs : [ - ]\n");
+
+    assert(regex_wrap(tested_string, "ab[a-c]defghijk") == 1);
+    assert(regex_wrap(tested_string, "[a-Z]bcdef") == 1);
+    assert(regex_wrap(tested_string, "abcde[a-z]") == 1);
+    assert(regex_wrap(tested_string, "ab[a-e]de[d-g]") == 1);
+
+
+    assert(regex_wrap(tested_string, "ab[A-Z]defghijk") == 0);
+    assert(regex_wrap(tested_string, "[1-9]bcdef") == 0);
+    assert(regex_wrap(tested_string, "abcde[o-o]") == 0);
+    assert(regex_wrap(tested_string, "ab[A-Z]de[a-f]") == 0);
+
+    printf("TESTS PASSED  \n");
 }
