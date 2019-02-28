@@ -40,9 +40,13 @@ For now, not every regex feature is implemented.
 Only thoses are working fine :
 - '.' any char
 - '*' multiplier 0 to any
+- '+' multiplier 1 to any
 - '[abc]' choice in char
 - '[a-z]' choice in char with interval
 - '(ab|cd)' choice in word
 - '^' begin char
 - '$' end char
 
+## Known limitations
+
+- Bug when using $ end chars and * multiplier
