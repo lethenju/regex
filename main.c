@@ -2,8 +2,15 @@
 #include <string.h>
 #include <assert.h>
 
+typedef enum 
+{
+    REGEX_MODE_NORMAL,
+    REGEX_MODE_BEGIN,
+    REGEX_MODE_END
+} regex_mode;
 
 static int hook = 0;
+static regex_mode mode = REGEX_MODE_NORMAL;
 
 
 int regex(char* string1, char* string2)
@@ -125,6 +132,16 @@ int regex(char* string1, char* string2)
             return 1;
             break;
     }
+
+    if (mode == REGEX_MODE_BEGIN)
+    {
+        if (*string1 == *string2)
+            if (strlen(string1)>1 && strlen(string2)>1)
+                return regex((string1+1),(string2+1));
+            else
+                return 1;
+    }
+
     if (strlen(string1)>1 && strlen(string2)>1 && *string1==*string2) {
             hook=1;
             return regex((string1+1),(string2+1));
@@ -143,6 +160,19 @@ int regex(char* string1, char* string2)
 
 int regex_wrap(char* string1, char* string2)
 {
+    // begin & end char
+    if (*string2 == '^') 
+    {
+        mode = REGEX_MODE_BEGIN;
+        string2++;
+    } else if (*(string2+strlen(string2)-1) == '$') // getting last char
+    {
+        mode = REGEX_MODE_END;
+        char* word_end = (string2+strlen(string2)-1);
+        word_end = '\0';
+    } // Doesnt support both modes at the same time
+    
+
     int result = regex(string1, string2);
     hook = 0;
     return result;
@@ -233,6 +263,14 @@ int main(int  argc, char* argv[])
     assert(regex_wrap(tested_string, "ab(123|hey)defghijk") == 0);
     assert(regex_wrap(tested_string, "(abc|aaa)bcdef") == 0);
     assert(regex_wrap(tested_string, "abcde(fge|o|lol)") == 0);
+
+    printf("BEGIN CHARs : ^\n");
+
+    assert(regex_wrap(tested_string, "^abcdef") == 1);
+    assert(regex_wrap(tested_string, "^(abc|def|ijk)def[a-z]i.k") == 1);
+
+    assert(regex_wrap(tested_string, "^defhg)") == 0);
+    assert(regex_wrap(tested_string, "^[A-C](def|hij))") == 0);
 
     printf("TESTS PASSED  \n");
 }
