@@ -63,6 +63,7 @@ int regex(char* string1, char* string2)
             {
                 // We now have the different word possibilities. 
                 // We now need to regex(string1, each word) to know if its okay
+                mode = REGEX_MODE_BEGIN; // we shouldnt check if the word exist somewhere in string1, but we have to be strict
                 if (regex(string1, *(possible_words+word_index))) {
                     // So its okay, we found a matching word
                     // ISSUE : it will find it on all the string, we have to ensure it find it at the good spot
@@ -74,7 +75,7 @@ int regex(char* string1, char* string2)
                     // NOTE : we're not returning directly regex, before if it is 0, we still have to check the other words.
                 }
             }
-            return 0;
+            return 0;mode = REGEX_MODE_BEGIN; // we shouldnt check if the word exist somewhere in string1, but we have to be strict
 
             break;
         case '[':;
@@ -140,6 +141,7 @@ int regex(char* string1, char* string2)
                 return regex((string1+1),(string2+1));
             else
                 return 1;
+        return 0;
     }
 
     if (strlen(string1)>1 && strlen(string2)>1 && *string1==*string2) {
@@ -160,6 +162,8 @@ int regex(char* string1, char* string2)
 
 int regex_wrap(char* string1, char* string2)
 {
+    int i;
+
     // begin & end char
     if (*string2 == '^') 
     {
@@ -169,10 +173,49 @@ int regex_wrap(char* string1, char* string2)
     {
         mode = REGEX_MODE_END;
         char* word_end = (string2+strlen(string2)-1);
-        word_end = '\0';
+        // To make it work, we should maybe turn the regex upside down : we should check every char from the end..
+        // the issue is that the multipliers wont work
+        // example : ooour ->  o*ur$
+        // We should check the r then the u then the o, multiplied.
+        // So we need to transform the strings to
+        //           ruooo -> ^ruo*
+        // string1 gets inversed easily
+        // string2 gets inversed, then inverse the char '*' with the char after it, then change the * with ^
+        // And the {} shouldnt get inversed
+        char* string1_i = malloc(sizeof(string1));
+        char* string2_i = malloc(sizeof(string2));
+        
+        for ( i = strlen(string1) - 1; i >= 0 ; i--)
+        {
+            string1_i[i] = *string1;
+            string1++;
+        }
+
+        for ( i = strlen(string2) - 1; i >= 0 ; i--)
+        {
+            string2_i[i] = *string2;
+            string2++;
+        }
+        *string2_i = '^';
+        // now we need to take care of multipliers
+        // TODO Take care of '{}' multiplier
+        for ( i = 0; i < strlen(string2_i) ; i++)
+        {
+            if (string2_i[i] == '*')
+            {
+                //if (strlen(string2_i+i) == 1) // syntax error : multiplier without arg
+                  //  return -1;
+
+                // INVERSING
+                string2_i[i] = string2_i[i+1];
+                string2_i[i+1] = '*';
+                break;
+            }
+        }
+        return regex_wrap(string1_i, string2_i);
+
     } // Doesnt support both modes at the same time
     
-
     int result = regex(string1, string2);
     hook = 0;
     return result;
@@ -261,16 +304,26 @@ int main(int  argc, char* argv[])
 
 
     assert(regex_wrap(tested_string, "ab(123|hey)defghijk") == 0);
-    assert(regex_wrap(tested_string, "(abc|aaa)bcdef") == 0);
+    assert(regex_wrap(tested_string, "(abc|aaa)deffuie") == 0);
     assert(regex_wrap(tested_string, "abcde(fge|o|lol)") == 0);
 
     printf("BEGIN CHARs : ^\n");
 
-    assert(regex_wrap(tested_string, "^abcdef") == 1);
-    assert(regex_wrap(tested_string, "^(abc|def|ijk)def[a-z]i.k") == 1);
+    assert(regex_wrap(tested_string, "^abc") == 1);
+    assert(regex_wrap(tested_string, "^(abc|def|ijk)def[a-z]hi.k") == 1);
 
     assert(regex_wrap(tested_string, "^defhg)") == 0);
     assert(regex_wrap(tested_string, "^[A-C](def|hij))") == 0);
+
+
+    printf("END CHARs : $\n");
+
+    assert(regex_wrap(tested_string, "hi*jk$") == 1);
+    assert(regex_wrap(tested_string, "hijk$") == 1);
+
+    assert(regex_wrap(tested_string, "abc$") == 0);
+    assert(regex_wrap(tested_string, "ij[abc]$") == 0);
+
 
     printf("TESTS PASSED  \n");
 }
