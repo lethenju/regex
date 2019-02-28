@@ -16,10 +16,64 @@ int regex(char* string1, char* string2)
             else
                 return 1;
             break;
+        case '(':; 
+            char *ptr_to_first_word = string2+1;
+            int nb_w = 0;
+            // first round to know nb of words
+            while (*string2 != ')')
+            {
+                if (*string2 == '|')
+                    nb_w++;
+                string2++;
+            }
+            char **possible_words = malloc(nb_w);
+
+            // secound round to actually allocate
+            string2 = ptr_to_first_word;
+            char* ptr_to_last_word = ptr_to_first_word;
+            nb_w = 0;
+            while (*string2 != ')')
+            {
+                if (*string2 == '|')
+                {
+                    *(possible_words + nb_w) = strdup(ptr_to_last_word);
+                    char* word_end = *(possible_words + nb_w)+ (string2 - ptr_to_last_word);
+                    *word_end = '\0';
+                    nb_w++;
+                    string2++; // stepping the |
+                    ptr_to_last_word = string2;
+
+                }
+                string2++;
+            }
+            *(possible_words + nb_w) = strdup(ptr_to_last_word);
+            char* word_end = *(possible_words + nb_w)+ (string2 - ptr_to_last_word);
+            *word_end = '\0';
+            nb_w++;
+            ptr_to_last_word = string2;
+            int word_index;
+            for (word_index = 0; word_index < nb_w; word_index++) 
+            {
+                // We now have the different word possibilities. 
+                // We now need to regex(string1, each word) to know if its okay
+                if (regex(string1, *(possible_words+word_index))) {
+                    // So its okay, we found a matching word
+                    // ISSUE : it will find it on all the string, we have to ensure it find it at the good spot
+                    // Maybe add "^"
+                    if (strlen(string2) == 1) return 1; // if string2 = ')' it means the regex is over and we're done
+                    // Now we have to simply step after the word to continue the regex
+                    if (regex(string1+strlen(*(possible_words+word_index)), string2+1)) 
+                        return 1;
+                    // NOTE : we're not returning directly regex, before if it is 0, we still have to check the other words.
+                }
+            }
+            return 0;
+
+            break;
         case '[':;
             char *possible_chars = string2+1;
             int nb = 0;
-            // we need to find the other brace to deduce the meaning
+            // we need to find the other brace to deduce the possible chars
             while (*string2 != ']')
             {
                 nb++;
@@ -99,7 +153,7 @@ int main(int  argc, char* argv[])
     char* tested_string = "abcdefghijk";
     printf("\n\nBEGIN TEST\n\n");
     printf("NO SPECIAL CHAR TESTS\n");
-    
+
     assert(regex_wrap(tested_string,"abcdef") == 1);
     assert(regex_wrap(tested_string,"def") == 1);
     assert(regex_wrap(tested_string,"ghij") == 1);
@@ -167,6 +221,18 @@ int main(int  argc, char* argv[])
     assert(regex_wrap(tested_string, "[1-9]bcdef") == 0);
     assert(regex_wrap(tested_string, "abcde[o-o]") == 0);
     assert(regex_wrap(tested_string, "ab[A-Z]de[a-f]") == 0);
+
+    printf("SPECIAL CHARs : ( | )\n");
+
+    assert(regex_wrap(tested_string, "ab(alors|cde)fghijk") == 1);
+    assert(regex_wrap(tested_string, "(abc|def|ijk)def") == 1);
+    assert(regex_wrap(tested_string, "abcde(fgh|ll)") == 1);
+    assert(regex_wrap(tested_string, "ab(cde|c)de(fg|h)") == 1);
+
+
+    assert(regex_wrap(tested_string, "ab(123|hey)defghijk") == 0);
+    assert(regex_wrap(tested_string, "(abc|aaa)bcdef") == 0);
+    assert(regex_wrap(tested_string, "abcde(fge|o|lol)") == 0);
 
     printf("TESTS PASSED  \n");
 }
