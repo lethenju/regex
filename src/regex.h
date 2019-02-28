@@ -1,0 +1,1 @@
+int regex(char*, char*);
