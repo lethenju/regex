@@ -38,16 +38,31 @@ int main(int  argc, char* argv[])
 
     printf("SPECIAL CHAR  : *\n");
 
-    assert(regex(tested_string,"ab.*f") == 1);
+    assert(regex(tested_string,"ab.*cdef") == 1);
     assert(regex(tested_string,"de*") == 1);
     assert(regex(tested_string,".*hij") == 1);
     assert(regex(tested_string,"abc*def") == 1);
+    assert(regex(tested_string,".*abc") == 1);
 
     assert(regex(tested_string,"*abc") == -1);
 
-    assert(regex(tested_string,".*abc") == 0);
     assert(regex(tested_string,"a*aa") == 0);
     assert(regex(tested_string,"ijkkk*") == 0);
+
+
+    printf("SPECIAL CHAR  : +\n");
+
+    assert(regex(tested_string,"ab.+f") == 1);
+    assert(regex(tested_string,"de+") == 1);
+    assert(regex(tested_string,".+hij") == 1);
+    assert(regex(tested_string,"abc+def") == 1);
+
+    assert(regex(tested_string,"+abc") == -1);
+
+    assert(regex(tested_string,".+abc") == 0);
+    assert(regex(tested_string,"a+aa") == 0);
+    assert(regex(tested_string,"ijkkk+") == 0);
+
 
     printf("TESTS PASSED  \n");
 
@@ -101,11 +116,12 @@ int main(int  argc, char* argv[])
 
     printf("END CHARs : $\n");
 
-    assert(regex(tested_string, "hi*jk$") == 1);
     assert(regex(tested_string, "hijk$") == 1);
+    assert(regex(tested_string, "gfhi*jk$") == 1);
 
     assert(regex(tested_string, "abc$") == 0);
     assert(regex(tested_string, "ij[abc]$") == 0);
+
 
     printf("TESTS PASSED  \n");
 }
