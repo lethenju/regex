@@ -116,23 +116,33 @@ int handle_multiplier(char* string1, char* string2, int number_min)
     to_compare[1] = '\0';
     compared_to[1] = '\0';
     char* ptr = string1;
-    while (strlen(string1)>1 && *(string2+1) != *(string1+1) ) // until we can exit the '*'. 
+    int count = 0;
+
+    while (strlen(string1)>1 && !regex_int(string2+1,string1+1) && regex_int(compared_to, to_compare)) // until we can exit the '*'. 
     // For now we will exit the multiplier as soon as the regex can continue or if the string is over
     {
+        count++;
         string1++; 
         compared_to = strdup(string1);
         compared_to[1] = '\0';
     }
     hook=0; // reset hook
     if (strlen(string2)>1){
-        printf("aaa =%d %s %s\n",number_min, ptr+number_min-1, string2+1);
-        return regex_int(ptr+number_min-1, string2+1);
+        mode=REGEX_MODE_NORMAL; // Workaround! to be fixed
+        return regex_int(ptr+number_min, string2+1);
     }
     return 1;
 }
 
 int regex_int(char* string1, char* string2)
 {
+    switch (*(string2+1))
+    {
+        case '*':;
+            return handle_multiplier(string1, string2+1,0);
+        case '+':;
+            return handle_multiplier(string1, string2+1,1);
+    }
     switch (*string2)
     {
         case '.':
@@ -141,10 +151,6 @@ int regex_int(char* string1, char* string2)
             return handle_choice_word(string1, string2);
         case '[':;
             return handle_choice_char(string1, string2);
-        case '*':;
-            return handle_multiplier(string1, string2,0);
-        case '+':;
-            return handle_multiplier(string1, string2,1);
     }
 
     if (mode == REGEX_MODE_BEGIN)
@@ -183,7 +189,12 @@ int regex(char* string1, char* string2)
     {
         mode = REGEX_MODE_BEGIN;
         string2++;
-    } else if (*(string2+strlen(string2)-1) == '$') // getting last char
+    }
+    else if (*string2 == '*' || *string2 == '+') 
+    {
+        return -1;
+    } 
+    else if (*(string2+strlen(string2)-1) == '$') // getting last char
     {
         mode = REGEX_MODE_END;
         char* word_end = (string2+strlen(string2)-1);
@@ -226,7 +237,6 @@ int regex(char* string1, char* string2)
                 break;
             }
         }
-        printf("%s %s\n", string1_i, string2_i);
         return regex(string1_i, string2_i);
 
     } // Doesnt support both modes at the same time
