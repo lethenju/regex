@@ -46,7 +46,3 @@ Only thoses are working fine :
 - '(ab|cd)' choice in word
 - '^' begin char
 - '$' end char
-
-## Known limitations
-
-- Bug when using $ end chars and * multiplier
