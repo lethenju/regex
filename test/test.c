@@ -117,7 +117,7 @@ int main(int  argc, char* argv[])
     printf("END CHARs : $\n");
 
     assert(regex(tested_string, "hijk$") == 1);
-    assert(regex(tested_string, "gfhi*jk$") == 1);
+    assert(regex(tested_string, "fghi*jk$") == 1);
 
     assert(regex(tested_string, "abc$") == 0);
     assert(regex(tested_string, "ij[abc]$") == 0);
