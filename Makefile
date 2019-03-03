@@ -10,6 +10,8 @@ BUILD_DIR=build
 OBJECTS_DIR=$(BUILD_DIR)/obj
 EXE_DIR=$(BUILD_DIR)/exe
 SRC_DIR=src
+INC_DIR+=inc
+INC_PARAM=$(foreach d, $(INC_DIR), -I$d)
 TEST_DIR=test
 F1_EXISTS=$(shell [ -e $(BUILD_DIR) ] && echo Y || echo N )
 
@@ -19,15 +21,15 @@ F1_EXISTS=$(shell [ -e $(BUILD_DIR) ] && echo Y || echo N )
 test: lib test.o
 	gcc -o $(EXE_DIR)/test_exe $(OBJECTS_DIR)/*
 
-test.o: $(TEST_DIR)/test.c $(SRC_DIR)/*.h 
-	gcc -g -c $(TEST_DIR)/test.c -o  $(OBJECTS_DIR)/test.o
+test.o: $(TEST_DIR)/test.c
+	gcc -g -c $(TEST_DIR)/test.c $(INC_PARAM) -o  $(OBJECTS_DIR)/test.o
 
 
 ### LIB TARGET
-lib: setup regex.o
+lib: setup log_system regex.o
 
-regex.o: $(SRC_DIR)/regex.c $(SRC_DIR)/regex.h
-	gcc -g -c $(SRC_DIR)/regex.c -o  $(OBJECTS_DIR)/regex.o
+regex.o: $(SRC_DIR)/regex.c
+	gcc -g -c $(SRC_DIR)/regex.c $(INC_PARAM) -o  $(OBJECTS_DIR)/regex.o
 
 ### END LIB TARGET
 

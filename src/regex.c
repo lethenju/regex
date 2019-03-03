@@ -140,11 +140,13 @@ int regex_int(char *string1, char *string2)
     switch (*(string2 + 1))
     {
     case '*':;
+        printf ("str1 = %s, str2 = %s, nb : %d\n",string1, string2, 0);
         return handle_multiplier(string1, string2 + 1, 0);
     case '+':;
+        printf ("str1 = %s, str2 = %s, nb : %d\n",string1, string2, 1);
         return handle_multiplier(string1, string2 + 1, 1);
     case '{':; // We need to know what is the number asked
-        char *old_str2 =  string2;
+        char *old_str2 =  strdup(string2);
         char *numbers = strdup(string2 + 2);
         int count = 0;
         while (*(string2+1) != '}')
@@ -157,14 +159,13 @@ int regex_int(char *string1, char *string2)
         // We should transform the "{13897}" by "*"
         // to do that, we have to copy all that is after the * to after the {
         // then to tranform the { by a *
-        printf ("old_str2 = %s, Count : %d\n ",old_str2, count);
         if (strlen(old_str2+count+2) > 0) // old char + { + the count after
         {                                 // we're actually verifying there is something after '}'
             strcpy(old_str2+2, old_str2+count+2);
         } else {
-            old_str2[2] = '\0'; 
+            old_str2[2] = '\0';
         }
-        printf ("new = %s, Count : %d\n ",old_str2, count);
+        printf ("str1 = %s, new = %s, Count : %d, nb : %d\n",string1, old_str2, count, nb);
         return handle_multiplier(string1, old_str2 + 1, nb);
         break;
     }

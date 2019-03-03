@@ -1,7 +1,7 @@
 
 #include <assert.h>
 #include <stdio.h>
-#include "../src/regex.h"
+#include "regex.h"
 
 
 int main(int  argc, char* argv[])
@@ -121,6 +121,17 @@ int main(int  argc, char* argv[])
 
     assert(regex(tested_string, "abc$") == 0);
     assert(regex(tested_string, "ij[abc]$") == 0);
+
+
+    printf("MULTIPLIER {}  \n");
+    
+    char* testing_string_multiplier =  "abbcccdddd"; 
+
+    //assert(regex(testing_string_multiplier, "ab{2}") == 1);
+    //assert(regex(testing_string_multiplier, "ab{2}c{3}d") == 1);
+
+    assert(regex(testing_string_multiplier, "ab{3}") == 0);
+    //assert(regex(testing_string_multiplier, "ab{2}c{3}d{5}") == 0);
 
 
     printf("TESTS PASSED  \n");
