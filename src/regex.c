@@ -138,6 +138,15 @@ int handle_multiplier(char *string1, char *string2, int number_min, int number_m
     return 1;
 }
 
+int handle_char_d(char* string1, char* string2)
+{
+    // transform \d in [0-9]
+    char* new_string = malloc(sizeof(string2)+3);
+    strcpy(new_string, "[0-9]");
+    strcpy(new_string+5, string2+2);
+    return regex_int(string1,new_string);
+}
+
 int regex_int(char *string1, char *string2)
 {
     switch (*(string2 + 1))
@@ -173,6 +182,15 @@ int regex_int(char *string1, char *string2)
     }
     switch (*string2)
     {
+    case '\\':;
+        switch (*(string2+1))
+        {
+            case 'd':;
+                return handle_char_d(string1, string2);
+            case 'D':;
+                // inverse of \d
+                return 1;//handle_char_D(string1, string2); to be done
+        }
     case '.':
         return handle_dot(string1, string2);
     case '(':
