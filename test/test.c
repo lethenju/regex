@@ -64,7 +64,24 @@ int main(int  argc, char* argv[])
     assert(regex(tested_string,"ijkkk+") == 0);
 
 
-    printf("TESTS PASSED  \n");
+    printf("SPECIAL CHARs : {}  \n");
+    
+    char* testing_string_multiplier =  "abbcccdddd"; 
+
+    assert(regex(testing_string_multiplier, "ab{2}") == 1);
+    assert(regex(testing_string_multiplier, "ab{2}c{3}d") == 1);
+
+    assert(regex(testing_string_multiplier, "ab{3}") == 0);
+    assert(regex(testing_string_multiplier, "ab{2}c{3}d{5}") == 0);
+
+
+    printf("SPECIAL CHAR  : ?  \n");
+
+    assert(regex(testing_string_multiplier, "abb?c") == 1);
+    assert(regex(testing_string_multiplier, "abbb?c") == 1);
+
+    assert(regex(testing_string_multiplier, "ab?c") == 0);
+    assert(regex(testing_string_multiplier, "abbbb?c") == 0);
 
     printf("SPECIAL CHARs : []\n");
 
@@ -121,17 +138,6 @@ int main(int  argc, char* argv[])
 
     assert(regex(tested_string, "abc$") == 0);
     assert(regex(tested_string, "ij[abc]$") == 0);
-
-
-    printf("MULTIPLIER {}  \n");
-    
-    char* testing_string_multiplier =  "abbcccdddd"; 
-
-    //assert(regex(testing_string_multiplier, "ab{2}") == 1);
-    //assert(regex(testing_string_multiplier, "ab{2}c{3}d") == 1);
-
-    assert(regex(testing_string_multiplier, "ab{3}") == 0);
-    //assert(regex(testing_string_multiplier, "ab{2}c{3}d{5}") == 0);
 
 
     printf("TESTS PASSED  \n");
