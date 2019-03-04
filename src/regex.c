@@ -112,13 +112,14 @@ int handle_multiplier(char *string1, char *string2, int number_min)
     // getting the char before the multiplier as a separate string
     char *to_compare = strdup(string2 - 1);
     // getting the char to be compared (will move) as a separate string
-    char *compared_to = strdup(string1 - 1);
+    char *compared_to = strdup(string1);
     to_compare[1] = '\0';
     compared_to[1] = '\0';
     char *ptr = string1;
     int count = 0;
 
-    while (strlen(string1) > 1 && !regex_int(string2 + 1, string1 + 1) && regex_int(compared_to, to_compare)) // until we can exit the '*'.
+    while (strlen(string1) > 1 
+    && regex_int(compared_to, to_compare)) // until we can exit the '*'.
     // For now we will exit the multiplier as soon as the regex can continue or if the string is over
     {
         count++;
@@ -127,6 +128,7 @@ int handle_multiplier(char *string1, char *string2, int number_min)
         compared_to[1] = '\0';
     }
     hook = 0; // reset hook
+    if (count < number_min) return 0;
     if (strlen(string2) > 1)
     {
         mode = REGEX_MODE_NORMAL; // Workaround! to be fixed
@@ -140,10 +142,8 @@ int regex_int(char *string1, char *string2)
     switch (*(string2 + 1))
     {
     case '*':;
-        printf ("str1 = %s, str2 = %s, nb : %d\n",string1, string2, 0);
         return handle_multiplier(string1, string2 + 1, 0);
     case '+':;
-        printf ("str1 = %s, str2 = %s, nb : %d\n",string1, string2, 1);
         return handle_multiplier(string1, string2 + 1, 1);
     case '{':; // We need to know what is the number asked
         char *old_str2 =  strdup(string2);
@@ -165,7 +165,6 @@ int regex_int(char *string1, char *string2)
         } else {
             old_str2[2] = '\0';
         }
-        printf ("str1 = %s, new = %s, Count : %d, nb : %d\n",string1, old_str2, count, nb);
         return handle_multiplier(string1, old_str2 + 1, nb);
         break;
     }
