@@ -105,7 +105,7 @@ int handle_choice_char(char *string1, char *string2)
     return 0;
 }
 
-int handle_multiplier(char *string1, char *string2, int number_min)
+int handle_multiplier(char *string1, char *string2, int number_min, int number_max)
 {
     if (strlen(string2 - 1) < 2)
         return -1; // ERROR : lonely multiplier
@@ -129,6 +129,7 @@ int handle_multiplier(char *string1, char *string2, int number_min)
     }
     hook = 0; // reset hook
     if (count < number_min) return 0;
+    if (number_max > 0 && count > number_max) return 0;
     if (strlen(string2) > 1)
     {
         mode = REGEX_MODE_NORMAL; // Workaround! to be fixed
@@ -142,9 +143,11 @@ int regex_int(char *string1, char *string2)
     switch (*(string2 + 1))
     {
     case '*':;
-        return handle_multiplier(string1, string2 + 1, 0);
+        return handle_multiplier(string1, string2 + 1, 0, 0);
     case '+':;
-        return handle_multiplier(string1, string2 + 1, 1);
+        return handle_multiplier(string1, string2 + 1, 1, 0);
+    case '?':;
+        return handle_multiplier(string1, string2 + 1, 0, 1);
     case '{':; // We need to know what is the number asked
         char *old_str2 =  strdup(string2);
         char *numbers = strdup(string2 + 2);
@@ -156,7 +159,7 @@ int regex_int(char *string1, char *string2)
         }
         numbers[count-1] = '\0'; // terminating number
         int nb = atoi(numbers);
-        // We should transform the "{13897}" by "*"
+        // We should transform the "{138}" by "{"
         // to do that, we have to copy all that is after the * to after the {
         // then to tranform the { by a *
         if (strlen(old_str2+count+2) > 0) // old char + { + the count after
@@ -165,7 +168,7 @@ int regex_int(char *string1, char *string2)
         } else {
             old_str2[2] = '\0';
         }
-        return handle_multiplier(string1, old_str2 + 1, nb);
+        return handle_multiplier(string1, old_str2 + 1, nb, 0);
         break;
     }
     switch (*string2)
