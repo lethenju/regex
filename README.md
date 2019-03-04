@@ -48,3 +48,8 @@ Only thoses are working fine :
 - '(ab|cd)' choice in word
 - '^' begin char
 - '$' end char
+- '\d' digit
+
+## Limitations
+
+- need to escape antislashes for \d etc : '\\d' and so we cannot escape antislash as a whole
