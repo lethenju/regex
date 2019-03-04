@@ -139,6 +139,24 @@ int main(int  argc, char* argv[])
     assert(regex(tested_string, "abc$") == 0);
     assert(regex(tested_string, "ij[abc]$") == 0);
 
+    printf("CHARACTER CLASSES : \\d\n");
+    
+    char* character_test_string = "ab1c2d34";
+    // need to escape it for now
+    assert(regex(character_test_string, "^ab\\dc") == 1);
+    assert(regex(character_test_string, "d\\d\\d") == 1);
+
+    assert(regex(character_test_string, "ab\\d\\d") == 0);
+    assert(regex(character_test_string, "\\d\\d\\d") == 0);
+
+    // printf("CHARACTER CLASSES : \\D\n");
+
+    // assert(regex(character_test_string, "^\\D\\D1\\D\\d") == 1);
+    // assert(regex(character_test_string, "\\D34") == 1);
+
+    // assert(regex(character_test_string, "ab\\D") == 0);
+    // assert(regex(character_test_string, "\\D\\D\\D") == 0);
+
 
     printf("TESTS PASSED  \n");
 }
