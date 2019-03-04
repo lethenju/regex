@@ -41,6 +41,8 @@ Only thoses are working fine :
 - '.' any char
 - '*' multiplier 0 to any
 - '+' multiplier 1 to any
+- '?' multiplier 0 to 1
+- '{nb}' multiplier to nb
 - '[abc]' choice in char
 - '[a-z]' choice in char with interval
 - '(ab|cd)' choice in word
