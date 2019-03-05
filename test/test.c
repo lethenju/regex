@@ -104,11 +104,15 @@ int main(int  argc, char* argv[])
     assert(regex(tested_string, "abcde[a-z]") == 1);
     assert(regex(tested_string, "ab[a-e]de[d-g]") == 1);
 
+    assert(regex(tested_string, "ab[0-9a-c]defghijk") == 1);
+    assert(regex(tested_string, "[a-Z0-5]bcdef") == 1);
+    assert(regex(tested_string, "abcde[a-jj-z]") == 1);
+    assert(regex(tested_string, "ab[a-cd-e]de[f-ga-z]") == 1);
 
-    assert(regex(tested_string, "ab[A-Z]defghijk") == 0);
-    assert(regex(tested_string, "[1-9]bcdef") == 0);
-    assert(regex(tested_string, "abcde[o-o]") == 0);
-    assert(regex(tested_string, "ab[A-Z]de[a-f]") == 0);
+
+
+    assert(regex(tested_string, "ab[A-Z0-9]defghijk") == 0);
+    assert(regex(tested_string, "[1-9A-Z]bcdef") == 0);
 
     printf("SPECIAL CHARs : ( | )\n");
 
@@ -141,7 +145,7 @@ int main(int  argc, char* argv[])
 
     printf("CHARACTER CLASSES : \\d\n");
     
-    char* character_test_string = "ab1c2d34";
+    char* character_test_string = "ab1c2d34:!/";
     // need to escape it for now
     assert(regex(character_test_string, "^ab\\dc") == 1);
     assert(regex(character_test_string, "d\\d\\d") == 1);
@@ -149,13 +153,31 @@ int main(int  argc, char* argv[])
     assert(regex(character_test_string, "ab\\d\\d") == 0);
     assert(regex(character_test_string, "\\d\\d\\d") == 0);
 
-    // printf("CHARACTER CLASSES : \\D\n");
+    printf("CHARACTER CLASSES : \\D\n");
 
-    // assert(regex(character_test_string, "^\\D\\D1\\D\\d") == 1);
-    // assert(regex(character_test_string, "\\D34") == 1);
+    assert(regex(character_test_string, "^\\D\\D1\\D\\d") == 1);
+    assert(regex(character_test_string, "\\D34") == 1);
 
-    // assert(regex(character_test_string, "ab\\D") == 0);
-    // assert(regex(character_test_string, "\\D\\D\\D") == 0);
+    assert(regex(character_test_string, "ab\\D") == 0);
+    assert(regex(character_test_string, "\\D\\D\\D") == 0);
+
+
+    printf("CHARACTER CLASSES : \\w\n");
+
+
+    assert(regex(character_test_string, "ab1c2\\w\\w\\w:!/") == 1);
+    assert(regex(character_test_string, "\\w\\w1c2") == 1);
+
+    assert(regex(character_test_string, "ab1c2d34\\w\\w") == 0);
+    assert(regex(character_test_string, "\\wab") == 0);
+
+    printf("CHARACTER CLASSES : \\W\n");
+
+    assert(regex(character_test_string, "d34\\W!") == 1);
+
+    assert(regex(character_test_string, "ab\\W") == 0);
+    assert(regex(character_test_string, "\\W\\W\\W\\W") == 0);
+
 
 
     printf("TESTS PASSED  \n");
