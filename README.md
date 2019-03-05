@@ -49,7 +49,13 @@ Only thoses are working fine :
 - '^' begin char
 - '$' end char
 - '\d' digit
+- '\D' not a digit
+- '\w' word character
+- '\W' not a word character
 
 ## Limitations
 
 - need to escape antislashes for \d etc : '\\d' and so we cannot escape antislash as a whole
+- no support for inverser in [] or ()
+- no support for multiplier after a character class or a [] or ()
+- no support for both ^$ at the same time
