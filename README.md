@@ -37,6 +37,7 @@ Clone the repository and :
 ## Features
 
 For now, not every regex feature is implemented.
+
 Only thoses are working fine :
 - '.' any char
 - '*' multiplier 0 to any
