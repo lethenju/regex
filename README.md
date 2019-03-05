@@ -60,3 +60,9 @@ Only thoses are working fine :
 - no support for inverser in [] or ()
 - no support for multiplier after a character class or a [] or ()
 - no support for both ^$ at the same time
+- no support for [-] with $ 
+- no support for {2,} or {2,3}
+- no support for greediness and lazyness in multipliers
+- no support for \s, \S
+- no support for escaping normal characters
+- no support for referencing group words (\1, \2)
