@@ -147,6 +147,34 @@ int handle_char_d(char* string1, char* string2)
     return regex_int(string1,new_string);
 }
 
+int handle_char_D(char* string1, char* string2)
+{
+    // transform \D in [ -/:-~] space to slash, ":" to tilde
+    char* new_string = malloc(sizeof(string2)+6);
+    strcpy(new_string, "[ -/:-~]");
+    strcpy(new_string+8, string2+2);
+    return regex_int(string1,new_string);
+}
+
+int handle_char_w(char* string1, char* string2)
+{
+    // transform \w in [0-9A-Za-z ]
+    char* new_string = malloc(sizeof(string2)+10);
+    strcpy(new_string, "[0-9A-Za-z ]");
+    strcpy(new_string+12, string2+2);
+    return regex_int(string1,new_string);
+}
+
+int handle_char_W(char* string1, char* string2)
+{
+    // transform \D in [ -/:-@[-`{-~] space to slash, ":" to tilde
+    char* new_string = malloc(sizeof(string2)+12);
+    strcpy(new_string, "[!-/:-@[-`{-~]");
+    strcpy(new_string+14, string2+2);
+    return regex_int(string1,new_string);
+}
+
+
 int regex_int(char *string1, char *string2)
 {
     switch (*(string2 + 1))
@@ -188,8 +216,11 @@ int regex_int(char *string1, char *string2)
             case 'd':;
                 return handle_char_d(string1, string2);
             case 'D':;
-                // inverse of \d
-                return 1;//handle_char_D(string1, string2); to be done
+                return handle_char_D(string1, string2);
+            case 'w':;
+                return handle_char_w(string1, string2);
+            case 'W':;
+                return handle_char_W(string1, string2);
         }
     case '.':
         return handle_dot(string1, string2);
@@ -253,7 +284,7 @@ int regex(char *string1, char *string2)
         //           ruooo -> ^ruo*
         // string1 gets inversed easily
         // string2 gets inversed, then inverse the char '*' with the char after it, then change the * with ^
-        // And the {} shouldnt get inversed
+        // And the {} and [-] shouldnt get inversed
         char *string1_i = malloc(sizeof(string1));
         char *string2_i = malloc(sizeof(string2));
 
@@ -275,9 +306,6 @@ int regex(char *string1, char *string2)
         {
             if (string2_i[i] == '*')
             {
-                //if (strlen(string2_i+i) == 1) // syntax error : multiplier without arg
-                //  return -1;
-
                 // INVERSING
                 string2_i[i] = string2_i[i + 1];
                 string2_i[i + 1] = '*';
