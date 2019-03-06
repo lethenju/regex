@@ -143,6 +143,15 @@ int main(int  argc, char* argv[])
     assert(regex(tested_string, "abc$") == 0);
     assert(regex(tested_string, "ij[abc]$") == 0);
 
+    printf("BOTH BEGIN AND END CHARs : ^$\n");
+
+    assert(regex(tested_string, "^ab.*jk$") == 1);
+    assert(regex(tested_string, "^a.*k$") == 1);
+
+    assert(regex(tested_string, "^abc$") == 0);
+    assert(regex(tested_string, "^ij[abc]$") == 0);
+
+
     printf("CHARACTER CLASSES : \\d\n");
     
     char* character_test_string = "ab1c2d34:!/";
