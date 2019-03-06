@@ -61,7 +61,7 @@ Only thoses are working fine :
 - no support for multiplier after a character class or a [] or ()
 - no support for [-] with $
 - no support for {2,} or {2,3}
-- no support for greediness and lazyness in multipliers
+- no support for greediness and lazyness in multipliers (greedy by default)
 - no support for \s, \S
 - no support for escaping normal characters
 - no support for referencing group words (\1, \2)
