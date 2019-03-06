@@ -267,6 +267,16 @@ int regex(char *string1, char *string2)
     {
         mode = REGEX_MODE_BEGIN;
         string2++;
+        if (*(string2 + strlen(string2) - 1) == '$') // getting last char
+        {
+            char* string1_backup = strdup(string1); // cause both strings will be heavily modified during the regex
+            char* string2_backup = strdup(string2);
+            // Both ^ and $ : return with ^ alone and $ alone 
+            int with_end = regex(string1, string2);
+            string2_backup[strlen(string2_backup) - 1] = '\0'; // removing $
+            int with_begin = regex(string1_backup, string2_backup);
+            return with_end*with_begin;
+        }
     }
     else if (*string2 == '*' || *string2 == '+')
     {
